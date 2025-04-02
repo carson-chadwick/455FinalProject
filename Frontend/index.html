@@ -1,13 +1,52 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Machiene Learning pipelines</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>News Article Recommender</title>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+
+  <h1>News Article Recommender</h1>
+
+  <label for="userInput">Enter User ID or Item ID:</label><br>
+  <input type="text" id="userInput" placeholder="e.g. 123456789"><br>
+  <button onclick="getRecommendations()">Get Recommendations</button>
+
+  <div class="results">
+    <div class="recommendation-list" id="collab">
+      <h2>Collaborative Filtering</h2>
+      <ul id="collabResults"></ul>
+    </div>
+    <div class="recommendation-list" id="content">
+      <h2>Content-Based Filtering</h2>
+      <ul id="contentResults"></ul>
+    </div>
+    <div class="recommendation-list" id="azure">
+      <h2>Azure ML Recommender</h2>
+      <ul id="azureResults"></ul>
+    </div>
+  </div>
+
+  <script>
+    async function getRecommendations() {
+      const id = document.getElementById("userInput").value;
+
+      // Example endpoints – replace with your actual backend routes or Azure endpoint
+      const responses = await Promise.all([
+        fetch(`/collab_recommend?id=${id}`),
+        fetch(`/content_recommend?id=${id}`),
+        fetch(`/azure_recommend?id=${id}`)
+      ]);
+
+      const [collabData, contentData, azureData] = await Promise.all(responses.map(res => res.json()));
+
+      // Populate lists
+      document.getElementById("collabResults").innerHTML = collabData.recommendations.map(item => `<li>${item}</li>`).join('');
+      document.getElementById("contentResults").innerHTML = contentData.recommendations.map(item => `<li>${item}</li>`).join('');
+      document.getElementById("azureResults").innerHTML = azureData.recommendations.map(item => `<li>${item}</li>`).join('');
+    }
+  </script>
+
+</body>
 </html>

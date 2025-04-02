@@ -1,0 +1,23 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 2em;
+  background-color: #f4f4f4;
+}
+h1 {
+  color: #333;
+}
+input, button {
+  padding: 10px;
+  font-size: 16px;
+  margin-top: 10px;
+}
+.results {
+  margin-top: 2em;
+}
+.recommendation-list {
+  background: white;
+  padding: 1em;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  margin-bottom: 1em;
+}
