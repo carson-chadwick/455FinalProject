@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface Recommendation {
   User: string;
@@ -9,17 +9,18 @@ interface Recommendation {
   "Recommended Item 5": string;
 }
 
-const azurestuff: React.FC = () => {
+const AzureStuff: React.FC = () => {
   const [personId, setPersonId] = useState<string>("");
   const [contentId, setContentId] = useState<string>("");
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  setPersonId("-1130272294246983140");
-  setContentId("310515487419366995");
-
-
+  // Set default personId and contentId when the component mounts
+  useEffect(() => {
+    setPersonId("-1130272294246983140");
+    setContentId("310515487419366995");
+  }, []); // This runs only once when the component mounts
 
   const callAzureEndpoint = async () => {
     const apiKey = ""; // <-- Insert your API key here
@@ -125,4 +126,4 @@ const azurestuff: React.FC = () => {
   );
 };
 
-export default azurestuff;
+export default AzureStuff;
