@@ -20,22 +20,13 @@ const AzureStuff: React.FC = () => {
   useEffect(() => {
     setPersonId("-1130272294246983140");
     setContentId("310515487419366995");
-  }, []); // This runs only once when the component mounts
+  }, []);
 
   const callAzureEndpoint = async () => {
-    const apiKey = ""; // <-- Insert your API key here
-    if (!apiKey) {
-      setError("API key is missing");
-      return;
-    }
-
     if (!personId || !contentId) {
       setError("Please enter both Person ID and Content ID");
       return;
     }
-
-    const url =
-      "http://fef9d82f-42bc-4c0f-bb90-5723682db315.eastus2.azurecontainer.io/score";
 
     const requestBody = {
       Inputs: {
@@ -53,12 +44,10 @@ const AzureStuff: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch("http://localhost:5000/proxy", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify(requestBody),
       });
