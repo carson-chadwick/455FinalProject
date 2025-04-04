@@ -73,21 +73,36 @@ const NewsRecommender: React.FC = () => {
 
   const getContentRecommendations = async () => {
     try {
-      const response = await fetch(`/content_recommend?id=${inputId}`);
-      const data = await response.json();
-      setContentResults(data.recommendations || []);
-    } catch (error) {
-      console.error("Error fetching content-based recommendations:", error);
-    }
-  };
+      const response = await fetch("/ContentFiltering.csv");
+      const csvText = await response.text();
 
-  const getAzureRecommendations = async () => {
-    try {
-      const response = await fetch(`/azure_recommend?id=${inputId}`);
-      const data = await response.json();
-      setAzureResults(data.recommendations || []);
+      Papa.parse(csvText, {
+        header: true,
+        complete: (results) => {
+          const rows = results.data;
+          const row = rows.find((r) => r.contentId === inputId);
+
+          if (row) {
+            setContentResults([
+              row.recommendationTitle1,
+              row.recommendationTitle2,
+              row.recommendationTitle3,
+              row.recommendationTitle4,
+              row.recommendationTitle5,
+            ]);
+          } else {
+            setContentResults([]);
+            console.error(
+              "No content-based recommendations found for this ID."
+            );
+          }
+        },
+        error: (error) => {
+          console.error("Error parsing ContentFiltering.csv:", error);
+        },
+      });
     } catch (error) {
-      console.error("Error fetching Azure recommendations:", error);
+      console.error("Error fetching ContentFiltering.csv:", error);
     }
   };
 
