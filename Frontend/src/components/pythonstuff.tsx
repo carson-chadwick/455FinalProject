@@ -1,37 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Papa from "papaparse";
 import "./styles.css";
 
 const NewsRecommender: React.FC = () => {
   const [inputId, setInputId] = useState("");
   const [collabResults, setCollabResults] = useState<string[]>([]);
   const [contentResults, setContentResults] = useState<string[]>([]);
-  const [azureResults, setAzureResults] = useState<string[]>([]);
+  const [collabData, setCollabData] = useState<Record<string, string[]>>({});
+  const [contentData, setContentData] = useState<Record<string, string[]>>({});
 
-  const getRecommendations = async () => {
-    try {
-      const responses = await Promise.all([
-        fetch(`/collab_recommend?id=${inputId}`),
-        fetch(`/content_recommend?id=${inputId}`),
-        fetch(`/azure_recommend?id=${inputId}`),
-      ]);
+  useEffect(() => {
+    // Load collaborative filtering CSV
+    Papa.parse("/collaborativeRecommendation.csv", {
+      download: true,
+      header: true,
+      complete: (result) => {
+        const data: Record<string, string[]> = {};
+        result.data.forEach((row: any) => {
+          const contentId = String(row.contentId).trim();
+          const recommendations = Object.values(row).slice(1);
+          data[contentId] = recommendations;
+        });
+        setCollabData(data);
+        console.log(
+          "Loaded collaborative data:",
+          Object.keys(data).slice(0, 5)
+        );
+      },
+    });
 
-      const [collabData, contentData, azureData] = await Promise.all(
-        responses.map((res) => res.json())
-      );
+    // Load content-based filtering CSV
+    Papa.parse("/ContentFiltering.csv", {
+      download: true,
+      header: true,
+      complete: (result) => {
+        const data: Record<string, string[]> = {};
+        result.data.forEach((row: any) => {
+          const contentId = String(row.contentId).trim();
+          const recommendations = Object.values(row).slice(1);
+          data[contentId] = recommendations;
+        });
+        setContentData(data);
+        console.log("Loaded content data:", Object.keys(data).slice(0, 5));
+      },
+    });
+  }, []);
 
-      setCollabResults(collabData.recommendations);
-      setContentResults(contentData.recommendations);
-      setAzureResults(azureData.recommendations);
-    } catch (error) {
-      console.error("Error fetching recommendations:", error);
-    }
+  const getRecommendations = () => {
+    const id = inputId.trim();
+    setCollabResults(collabData[id] || ["No results found"]);
+    setContentResults(contentData[id] || ["No results found"]);
   };
 
   return (
     <div className="app-container">
-      <h1>News Article Recommender</h1>
+      <h1>Hello World</h1>
+      <h2>News Article Recommender</h2>
 
-      <label htmlFor="userInput">Enter User ID or Item ID:</label>
+      <label htmlFor="userInput">Enter Article ID:</label>
       <br />
       <input
         type="text"
@@ -58,15 +84,6 @@ const NewsRecommender: React.FC = () => {
           <ul>
             {contentResults.map((item, index) => (
               <li key={`content-${index}`}>{item}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="recommendation-list" id="azure">
-          <h2>Azure ML Recommender</h2>
-          <ul>
-            {azureResults.map((item, index) => (
-              <li key={`azure-${index}`}>{item}</li>
             ))}
           </ul>
         </div>
